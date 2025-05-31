@@ -1,0 +1,121 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RangVichar - Contemporary Indian Art Reviews</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 font-sans">
+  <!-- Header -->
+  <header class="bg-amber-600 text-white py-4">
+    <div class="container mx-auto px-4 flex justify-between items-center">
+      <h1 class="text-2xl font-bold">RangVichar</h1>
+      <nav>
+        <a href="#about" class="px-4 hover:underline">About</a>
+        <a href="#gallery" class="px-4 hover:underline">Gallery</a>
+        <a href="#contact" class="px-4 hover:underline">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="bg-cover bg-center h-96" style="background-image: url('https://source.unsplash.com/random/1600x900/?indian-art')">
+    <div class="container mx-auto px-4 h-full flex items-center">
+      <div class="text-white text-center">
+        <h2 class="text-4xl font-bold mb-4">Discover Contemporary Indian Art</h2>
+        <p class="text-lg mb-6">Reviews, stories, and artist spotlights from India's vibrant art scene.</p>
+        <a href="https://instagram.com/yourusername" target="_blank" class="bg-amber-600 text-white px-6 py-2 rounded-full hover:bg-amber-700">Follow on Instagram</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- About Section -->
+  <section id="about" class="py-12">
+    <div class="container mx-auto px-4 text-center">
+      <h3 class="text-3xl font-bold mb-6">About RangVichar</h3>
+      <p class="text-lg max-w-2xl mx-auto">RangVichar is your go-to platform for exploring contemporary Indian art. From bold paintings to innovative sculptures, we share reviews, artist stories, and cultural insights to celebrate India's creative spirit.</p>
+    </div>
+  </section>
+
+  <!-- Gallery Section (Instagram Feed Placeholder) -->
+  <section id="gallery" class="bg-white py-12">
+    <div class="container mx-auto px-4">
+      <h3 class="text-3xl font-bold text-center mb-6">Latest Art Reviews</h3>
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+        <div class="bg-gray-200 h-64 rounded-lg flex items-center justify-center">
+          <p>Instagram Post 1</p>
+        </div>
+        <div class="bg-gray-200 h-64 rounded-lg flex items-center justify-center">
+          <p>Instagram Post 2</p>
+        </div>
+        <div class="bg-gray-200 h-64 rounded-lg flex items-center justify-center">
+          <p>Instagram Post 3</p>
+        </div>
+      </div>
+      <p class="text-center mt-6">Follow <a href="https://instagram.com/yourusername" target="_blank" class="text-amber-600 hover:underline">@yourusername</a> for more!</p>
+    </div>
+  </section>
+
+  <!-- Contact Section -->
+  <section id="contact" class="py-12">
+    <div class="container mx-auto px-4 text-center">
+      <h3 class="text-3xl font-bold mb-6">Get in Touch</h3>
+      <p class="mb-6">Want to collaborate or share your art? Reach out!</p>
+      <div class="max-w-md mx-auto">
+        <input type="text" placeholder="Your Name" class="w-full p-3 mb-4 border rounded-lg" disabled>
+        <input type="email" placeholder="Your Email" class="w-full p-3 mb-4 border rounded-lg" disabled>
+        <textarea placeholder="Your Message" class="w-full p-3 mb-4 border rounded-lg" rows="4" disabled></textarea>
+        <button class="bg-amber-600 text-white px-6 py-2 rounded-full hover:bg-amber-700" disabled>Send Message</button>
+        <p class="mt-4 text-sm">Note: Contact form is a placeholder. Email us at <a href="mailto:your.email@example.com" class="text-amber-600 hover:underline">your.email@example.com</a>.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="bg-amber-600 text-white py-4">
+    <div class="container mx-auto px-4 text-center">
+      <p>&copy; 2025 RangVichar. All rights reserved.</p>
+    </div>
+  </footer>
+</body>
+</html>
